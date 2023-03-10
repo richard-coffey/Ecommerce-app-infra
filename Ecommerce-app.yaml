@@ -1,0 +1,38 @@
+# Name of the pipeline
+name: Deploy Infrastructure (Prod)
+
+# Define the trigger for pipeline
+trigger:
+  branches:
+    include:
+      - main
+
+# Define the pool of virtual machines for the pipeline
+pool:
+  vmImage: ubuntu-latest 
+
+parameters:
+- name: location
+  type: string
+  default: 'North Europe'
+  values:
+  - 'North Europe'
+  - 'West Europe'
+
+# Define the jobs
+jobs:
+- job:
+  displayName: Deploy Infrastructure (Prod)
+
+  steps:
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'Pay-As-You-Go(51481efe-772a-49e5-a013-9e3001e18be8)'
+      subscriptionId: '51481efe-772a-49e5-a013-9e3001e18be8'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: 'ecommerce-prod'
+      location: '${{ parameters.location }}'
+      templateLocation: 'Linked artifact'
+      csmFile: 'infrastructure.bicep'
+      deploymentMode: ‘Incremental'
